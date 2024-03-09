@@ -58,7 +58,10 @@ public class CastingItem extends Item {
     }
 
     private boolean canCast(Player player, Spell spell) {
-        if (!spell.canAfford(player)) return false;
+        if (!spell.canAfford(player)) {
+            player.sendSystemMessage(Component.translatable("Cannot afford spell: %s, %s", spell.toString(), spell.getRuneCosts()));
+            return false;
+        }
         spell.getRuneCosts().forEach((type, integer) -> player.getData(RunicRegistry.Attachments.RUNES).removeRunes(type, integer));
         return true;
     }

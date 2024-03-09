@@ -30,13 +30,10 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class RunicRegistry {
     private static final ExtendedDefHelper R = ExtendedDefHelper.create(Runic.MODID);
@@ -80,13 +77,13 @@ public class RunicRegistry {
     }
     public static class CreativeTab {
 
-        public static final ResourceKey<CreativeModeTab> SPELLBOOK_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Runic.loc("creative_tab"));
+        public static final ResourceKey<CreativeModeTab> RUNIC_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Runic.loc("creative_tab"));
 
-        public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SPELLBOOK_TAB = R.tab("tab", () -> CreativeModeTab.builder().title(Component.translatable("spellbook.tab"))
+        public static final DeferredHolder<CreativeModeTab, CreativeModeTab> RUNIC_TAB = R.tab("tab", () -> CreativeModeTab.builder().title(Component.translatable("runic.tab"))
                 .icon(() -> new ItemStack(Items.WATER_RUNE.asItem())).build());
         static
         {
-            TabFillingRegistry.register(RunicRegistry.CreativeTab.SPELLBOOK_TAB_KEY, Items.AIR_RUNE, Items.BODY_RUNE);
+            TabFillingRegistry.register(RunicRegistry.CreativeTab.RUNIC_TAB_KEY, Items.AIR_RUNE, Items.BODY_RUNE);
         }
         private static void poke() {
         }

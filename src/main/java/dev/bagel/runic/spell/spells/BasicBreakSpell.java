@@ -11,6 +11,8 @@ import net.minecraft.world.phys.BlockHitResult;
 public class BasicBreakSpell extends Spell {
     public BasicBreakSpell(int level, int xp, CastType type) {
         super(level, xp, RuneType.EARTH, type);
+        setCostForRune(RuneType.BODY, 1);
+        setCostForRune(RuneType.EARTH, 1);
     }
 
     @Override

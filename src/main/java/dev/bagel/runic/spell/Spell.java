@@ -48,10 +48,6 @@ public abstract class Spell {
         this.castType = castType;
     }
 
-    public Spell(int level, int castXp, RuneType primaryRune, ResourceLocation castType) {
-        this(level, castXp, primaryRune);
-        this.id = castType;
-    }
 
     public int getCostForRune(RuneType type) {
         return runeCosts.getInt(type);
@@ -65,8 +61,9 @@ public abstract class Spell {
         return RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(this);
     }
 
-    protected int setCostForRune(RuneType type, int value) {
-        return runeCosts.put(type, value);
+    protected Spell setCostForRune(RuneType type, int value) {
+        runeCosts.put(type, value);
+        return this;
     }
 
     public boolean canAfford(Player player) {
@@ -97,6 +94,6 @@ public abstract class Spell {
 
     @Override
     public String toString() {
-        return "Spell: [" + RunicRegistry.CustomRegistries.SPELL_REGISTRY.getId(this) + "]";
+        return "Spell: [" + RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(this) + "]";
     }
 }
