@@ -4,6 +4,8 @@ import dev.bagel.runic.Runic;
 import dev.bagel.runic.attachments.entity.ExperienceAttachment;
 import dev.bagel.runic.attachments.entity.RuneAttachment;
 import dev.bagel.runic.attachments.entity.SpellAttachment;
+import dev.bagel.runic.registry.block.RuneAltarBlock;
+import dev.bagel.runic.registry.block.entity.RuneAltarBlockEntity;
 import dev.bagel.runic.registry.effect.RunicEffect;
 import dev.bagel.runic.registry.item.CastingItem;
 import dev.bagel.runic.registry.menu.SpellbookMenu;
@@ -27,9 +29,11 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -38,6 +42,8 @@ public class RunicRegistry {
     private static final ExtendedDefHelper R = ExtendedDefHelper.create(Runic.MODID);
     public static void init() {
         Items.poke();
+        Blocks.poke();
+        BlockEntities.poke();
         CreativeTab.poke();
         Menus.poke();
         Spells.poke();
@@ -59,6 +65,16 @@ public class RunicRegistry {
         public static DeferredItem<CapacityUpgradeItem> TIER_3_POUCH = R.item("tier_3_pouch", () -> new CapacityUpgradeItem(CapacityTier.TIER_3));
         public static DeferredItem<CastingItem> FIRE_STAFF = R.item("fire_staff", () -> new CastingItem(RuneType.FIRE));
 
+        private static void poke() {
+        }
+    }
+    public static class Blocks {
+        public static DeferredBlock<RuneAltarBlock> RUNE_ALTAR = R.block("rune_altar", () -> new RuneAltarBlock());
+        private static void poke() {
+        }
+    }
+    public static class BlockEntities {
+        public static DeferredHolder<BlockEntityType<?>, BlockEntityType<RuneAltarBlockEntity>> RUNE_ALTAR_BE = R.blockEntity("rune_altar", () -> BlockEntityType.Builder.of(RuneAltarBlockEntity::new, Blocks.RUNE_ALTAR.get()).build(null));
         private static void poke() {
         }
     }

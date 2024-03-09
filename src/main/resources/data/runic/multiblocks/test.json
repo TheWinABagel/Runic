@@ -1,0 +1,11 @@
+{
+  "list": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "map": {
+    "#": "minecraft:cobblestone",
+    "X": "minecraft:gold"
+  }
+}

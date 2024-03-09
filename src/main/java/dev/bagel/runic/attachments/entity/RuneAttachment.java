@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,10 +88,10 @@ public class RuneAttachment {
         }
 
         @Override
-        public RuneAttachment read(CompoundTag tag) {
+        public RuneAttachment read(IAttachmentHolder holder, CompoundTag tag) {
             RuneAttachment result = new RuneAttachment(CapacityTier.values()[tag.getInt("tier")]);
             for (RuneType type : RuneType.values()) {
-               result.runeMap.put(type, tag.getInt("rune_" + type.getId()));
+               result.runeMap.put(type, tag.getInt("rune_" + type.toString()));
             }
             return result;
         }
@@ -98,7 +99,7 @@ public class RuneAttachment {
         @Override
         public CompoundTag write(RuneAttachment attachment) {
             CompoundTag tag = new CompoundTag();
-            attachment.runeMap.forEach((type, value) -> tag.putInt("rune_" + type.getId(), value));
+            attachment.runeMap.forEach((type, value) -> tag.putInt("rune_" + type.toString(), value));
             tag.putInt("tier", attachment.capacityTier.ordinal());
             return tag;
         }

@@ -2,6 +2,7 @@ package dev.bagel.runic.spell;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bagel.runic.Runic;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.casting.CastType;
@@ -19,18 +20,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public  class Spell implements CodecProvider<Spell> {
+public abstract class Spell {
+
+
     public RuneType primaryRune = RuneType.BLANK;
-    public CastType castType = CastType.PROJECTILE;
+    public ResourceLocation id;
+    public CastType castType = CastType.TOUCH;
     private final Object2IntMap<RuneType> runeCosts = new Object2IntOpenHashMap<>();
     public int level;
     public int castXp;
-    public static final Codec<Spell> CODEC = RecordCodecBuilder.create(inst -> inst
-            .group(
-                Codec.INT.fieldOf("level").forGetter(a -> a.level),
-                Codec.INT.fieldOf("castXp").forGetter(a -> a.castXp),
-                Codec.STRING.xmap(RuneType::valueOf, RuneType::name).fieldOf("primaryRune").forGetter(a -> a.primaryRune))
-            .apply(inst, Spell::new));
 
     public Spell(int level, int castXp) {
         this.level = level;
@@ -45,9 +43,14 @@ public  class Spell implements CodecProvider<Spell> {
         this.primaryRune = primaryRune;
     }
 
-    public Spell(int level, int castXp, RuneType primaryRune, CastType type) {
+    public Spell(int level, int castXp, RuneType primaryRune, CastType castType) {
         this(level, castXp, primaryRune);
-        this.castType = type;
+        this.castType = castType;
+    }
+
+    public Spell(int level, int castXp, RuneType primaryRune, ResourceLocation castType) {
+        this(level, castXp, primaryRune);
+        this.id = castType;
     }
 
     public int getCostForRune(RuneType type) {
@@ -58,7 +61,7 @@ public  class Spell implements CodecProvider<Spell> {
         return runeCosts;
     }
 
-    public ResourceLocation getId(){
+    public ResourceLocation getId() {
         return RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(this);
     }
 
@@ -84,16 +87,16 @@ public  class Spell implements CodecProvider<Spell> {
         return InteractionResult.PASS;
     }
 
-    public InteractionResult onHitBlock(Level level, Player player, BlockHitResult hitResult, Spell spell){
-        return InteractionResult.PASS;
+    public InteractionResult onHitBlock(Level level, Player player, BlockHitResult hitResult, Spell spell) {
+        return InteractionResult.SUCCESS;
     }
 
     public InteractionResult onHitEntity(Level level, Player player, LivingEntity target, ItemStack usedStack, Spell spell){
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public Codec<? extends Spell> getCodec() {
-        return CODEC;
+    public String toString() {
+        return "Spell: [" + RunicRegistry.CustomRegistries.SPELL_REGISTRY.getId(this) + "]";
     }
 }

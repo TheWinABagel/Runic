@@ -3,6 +3,7 @@ package dev.bagel.runic.registry.item;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class CastingItem extends Item {
     public final RuneType effectiveType;
+    InteractionResult result = InteractionResult.PASS;
     public CastingItem(RuneType type) {
         super(new Properties().stacksTo(1).durability(250));
         this.effectiveType = type;
@@ -27,9 +29,10 @@ public class CastingItem extends Item {
         ItemStack stack = player.getItemInHand(usedHand);
         if (level.isClientSide()) return InteractionResultHolder.pass(stack);
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
-        InteractionResult result = spell.onCast(level, player, stack, spell);
-        consumeRunes(player, spell);
-        return new InteractionResultHolder<>(result, stack);
+        if (!canCast(player, spell)) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+
+        player.sendSystemMessage(Component.literal("cast"));
+        return new InteractionResultHolder<>(spell.onCast(level, player, stack, spell), stack);
     }
 
     @Override
@@ -39,6 +42,9 @@ public class CastingItem extends Item {
         Player player = ctx.getPlayer();
         if (player == null) return InteractionResult.PASS;
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
+        if (!canCast(player, spell)) return InteractionResult.PASS;
+
+        player.sendSystemMessage(Component.literal("block"));
         return spell.onHitBlock(ctx.getLevel(), ctx.getPlayer(), hitResult, spell);
     }
 
@@ -46,10 +52,12 @@ public class CastingItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand usedHand) {
         if (player.level().isClientSide()) return InteractionResult.PASS;
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
+        if (!canCast(player, spell)) return InteractionResult.PASS;
+        player.sendSystemMessage(Component.literal("entity"));
         return spell.onHitEntity(target.level(), player, target, stack, spell);
     }
 
-    private boolean consumeRunes(Player player, Spell spell) {
+    private boolean canCast(Player player, Spell spell) {
         if (!spell.canAfford(player)) return false;
         spell.getRuneCosts().forEach((type, integer) -> player.getData(RunicRegistry.Attachments.RUNES).removeRunes(type, integer));
         return true;
