@@ -1,10 +1,8 @@
 package dev.bagel.runic.spell.spells;
 
-import dev.bagel.runic.Spellbook;
-import dev.bagel.runic.reg.rune_registry.RuneType;
+import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.casting.CastType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -16,7 +14,7 @@ public class BasicBreakSpell extends Spell {
     }
 
     @Override
-    public InteractionResult onHitBlock(Level level, Player caster, BlockHitResult hitResult) {
+    public InteractionResult onHitBlock(Level level, Player caster, BlockHitResult hitResult, Spell spell) {
         if (level.isClientSide()) return InteractionResult.PASS;
         level.destroyBlock(hitResult.getBlockPos(), true, caster);
         return InteractionResult.SUCCESS;

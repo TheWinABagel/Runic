@@ -1,6 +1,6 @@
 package dev.bagel.runic.spell.spells;
 
-import dev.bagel.runic.reg.rune_registry.RuneType;
+import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.casting.CastType;
 

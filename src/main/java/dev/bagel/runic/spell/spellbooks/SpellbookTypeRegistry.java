@@ -7,7 +7,7 @@ import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 public class SpellbookTypeRegistry extends DynamicRegistry<SpellbookType> {
     public static final SpellbookTypeRegistry INSTANCE = new SpellbookTypeRegistry();
     public SpellbookTypeRegistry() {
-        super(Spellbook.LOGGER, "spellbooks", true, true);
+        super(Runic.LOGGER, "spellbooks", true, true);
     }
 
     @Override
