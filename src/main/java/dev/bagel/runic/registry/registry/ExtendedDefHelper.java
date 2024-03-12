@@ -4,7 +4,6 @@ import dev.bagel.runic.Runic;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
-import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -39,11 +38,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.*;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 /**
@@ -66,8 +63,8 @@ public class ExtendedDefHelper {
         return registerDH(path, RunicRegistry.CustomRegistries.SPELL_KEY, spell);
     }
 
-    public <T extends SpellModifier> DeferredHolder<SpellModifier, T> spellModifier(String path, Supplier<T> spell) {
-        return registerDH(path, RunicRegistry.CustomRegistries.SPELL_MODIFIER_KEY, spell);
+    public <T extends SpellModifier> DeferredHolder<SpellModifier, T> spellModifier(String path, Supplier<T> modifier) {
+        return registerDH(path, RunicRegistry.CustomRegistries.SPELL_MODIFIER_KEY, modifier);
     }
 
     public <T extends AttachmentType<?>> DeferredHolder<AttachmentType<?>, T> attachment(String path, Supplier<T> attachment) {

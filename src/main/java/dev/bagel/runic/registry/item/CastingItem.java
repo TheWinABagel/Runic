@@ -19,6 +19,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.ArrayList;
+
 
 public class CastingItem extends Item {
     public final RuneType effectiveType;
@@ -36,18 +38,27 @@ public class CastingItem extends Item {
         if (level.isClientSide()) return InteractionResultHolder.pass(stack);
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
 //        if (!canCast(player, spell)) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
-
-//        for (SpellModifier modifier : player.getData(spellModifiers or whatever) TODO
+        var context = new CastContext(level, player, spell, stack, null, null, new ArrayList<>(), spell.castType);
         SpellProjectileEntity entity = null;
-//            if (CastType.makesProjectile(modifier.getCastType())) {
-//                SpellProjectileEntity projectile = new SpellProjectileEntity(level);
-//                projectile.setOwner(player);
-//                projectile.setSpell(spell);
-//                projectile.setStack(stack);
-//                projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0F, 0.7F, 0F);
-//                level.addFreshEntity(projectile);
-//            }
-        new CastContext(level, player, spell, stack, null, entity);
+        for (SpellModifier modifier : player.getData(RunicRegistry.Attachments.SPELL).getModifiersForSpell(spell)) {
+            context.setCastType(CastType.PROJECTILE);
+            if (CastType.makesProjectile(context.getCastType())) {
+                entity = new SpellProjectileEntity(level);
+                entity.setOwner(player);
+                entity.setSpell(spell);
+                entity.setStack(stack);
+                entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0F, 0.7F, 0F);
+                level.addFreshEntity(entity);
+                context.setSpellProjectile(entity);
+            }
+        }
+
+        if (context.getSpellProjectile() != null) {
+
+        }
+         else {
+
+        }
 
         if (spell.castType.is(CastType.PROJECTILE)) {
             player.sendSystemMessage(Component.literal("projectile cast"));

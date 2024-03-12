@@ -1,21 +1,24 @@
 package dev.bagel.runic.spell.spells;
 
-import dev.bagel.runic.registry.rune_registry.RuneType;
+import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
-import dev.bagel.runic.spell.casting.CastType;
+import dev.bagel.runic.spell.modifiers.SpellModifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 
 public class BasicEffectSpell extends Spell {
-    public BasicEffectSpell(int castXp, CastType type) {
-        super(castXp, type);
+    public BasicEffectSpell(int castXp) {
+        super(castXp);
+    }
+
+    @Override
+    public SpellModifier defaultModifier() {
+        return RunicRegistry.SpellModifiers.SELF_MODIFIER.get();
     }
 
     @Override

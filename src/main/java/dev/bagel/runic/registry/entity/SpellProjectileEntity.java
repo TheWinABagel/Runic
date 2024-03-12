@@ -2,13 +2,12 @@ package dev.bagel.runic.registry.entity;
 
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
+import dev.bagel.runic.spell.modifiers.SpellModifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -24,9 +23,14 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpellProjectileEntity extends Projectile {
-    private static final EntityDataAccessor<String> DATA_ID = SynchedEntityData.defineId(SpellProjectileEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Spell> DATA_SPELL = SynchedEntityData.defineId(SpellProjectileEntity.class, RunicRegistry.EntityDataSerializers.SPELL_SERIALIZER_HOLDER.get());
+    private static final EntityDataAccessor<List<SpellModifier>> DATA_SPELL_MODIFIERS = SynchedEntityData.defineId(SpellProjectileEntity.class, RunicRegistry.EntityDataSerializers.SPELL_MODIFIER_SERIALIZER_HOLDER.get());
     private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(SpellProjectileEntity.class, EntityDataSerializers.ITEM_STACK);
+
     public SpellProjectileEntity(Level pLevel) {
         this(RunicRegistry.Entities.SPELL_PROJECTILE.get(), pLevel);
     }
@@ -38,7 +42,8 @@ public class SpellProjectileEntity extends Projectile {
     @Override
     protected void defineSynchedData() {
         this.getEntityData().define(DATA_ITEM_STACK, ItemStack.EMPTY);
-        this.getEntityData().define(DATA_ID, RunicRegistry.Spells.EMPTY.getId().toString());
+        this.getEntityData().define(DATA_SPELL, RunicRegistry.Spells.EMPTY.get());
+        this.getEntityData().define(DATA_SPELL_MODIFIERS, new ArrayList<>());
     }
 
     @Override
@@ -46,16 +51,6 @@ public class SpellProjectileEntity extends Projectile {
         this.setPos(pX, pY, pZ);
         this.setRot(pYRot, pXRot);
     }
-
-//    @Override
-//    public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-//        super.shoot(x, y, z, velocity, 0);
-//    }
-//
-//    @Override
-//    public void shootFromRotation(Entity shooter, float x, float y, float z, float velocity, float inaccuracy) {
-//        super.shootFromRotation(shooter, x, y, z, velocity, inaccuracy);
-//    }
 
     @Override
     public void tick() {
@@ -130,14 +125,22 @@ public class SpellProjectileEntity extends Projectile {
     }
 
     public void setSpell(Spell spell) {
-        this.getEntityData().set(DATA_ID, spell.getId().toString());
+        this.getEntityData().set(DATA_SPELL, spell);
+    }
+
+    public void setModifiers(List<SpellModifier> modifiers) {
+        this.getEntityData().set(DATA_SPELL_MODIFIERS, modifiers);
     }
 
     public Spell getSpell() {
-        return Spell.getSpellFromId(new ResourceLocation(this.getEntityData().get(DATA_ID)));
+        return this.getEntityData().get(DATA_SPELL);
     }
 
-    protected ItemStack getStack() {
+    public ItemStack getStack() {
         return this.getEntityData().get(DATA_ITEM_STACK);
+    }
+
+    public List<SpellModifier> getModifiers() {
+        return this.getEntityData().get(DATA_SPELL_MODIFIERS);
     }
 }

@@ -8,17 +8,18 @@ import dev.bagel.runic.registry.block.RuneAltarBlock;
 import dev.bagel.runic.registry.block.entity.RuneAltarBlockEntity;
 import dev.bagel.runic.registry.effect.RunicEffect;
 import dev.bagel.runic.registry.entity.SpellProjectileEntity;
-import dev.bagel.runic.registry.item.CastingItem;
-import dev.bagel.runic.registry.menu.SpellbookMenu;
 import dev.bagel.runic.registry.item.CapacityUpgradeItem;
+import dev.bagel.runic.registry.item.CastingItem;
 import dev.bagel.runic.registry.item.RuneItem;
 import dev.bagel.runic.registry.menu.RuneMenu;
+import dev.bagel.runic.registry.menu.SpellbookMenu;
 import dev.bagel.runic.registry.registry.ExtendedDefHelper;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
-import dev.bagel.runic.spell.casting.CastType;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
+import dev.bagel.runic.spell.modifiers.modifiers.ProjectileSpellModifier;
+import dev.bagel.runic.spell.modifiers.modifiers.SelfSpellModifier;
 import dev.bagel.runic.spell.spells.BasicBreakSpell;
 import dev.bagel.runic.spell.spells.BasicDamageSpell;
 import dev.bagel.runic.spell.spells.BasicEffectSpell;
@@ -26,19 +27,27 @@ import dev.bagel.runic.spell.spells.EmptySpell;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RunicRegistry {
     private static final ExtendedDefHelper R = ExtendedDefHelper.create(Runic.MODID);
@@ -49,9 +58,11 @@ public class RunicRegistry {
         CreativeTab.poke();
         Menus.poke();
         Spells.poke();
+        SpellModifiers.poke();
         Effects.poke();
         Entities.poke();
         Attachments.poke();
+        EntityDataSerializers.poke();
     }
 
     public static class Items {
@@ -115,9 +126,16 @@ public class RunicRegistry {
 
     public static class Spells {
         public static final DeferredHolder<Spell, EmptySpell> EMPTY = R.spell("blank_spell", EmptySpell::new);
-        public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(5, CastType.PROJECTILE));
-        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(5, CastType.SELF));
-        public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(5,  CastType.SELF));
+        public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(5));
+        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(5));
+        public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(5));
+
+        private static void poke() {
+        }
+    }
+    public static class SpellModifiers {
+        public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> PROJECTILE_MODIFIER = R.spellModifier("projectile_modifier", ProjectileSpellModifier::new);
+        public static final DeferredHolder<SpellModifier, SelfSpellModifier> SELF_MODIFIER = R.spellModifier("self_modifier", SelfSpellModifier::new);
 
         private static void poke() {
         }
@@ -142,7 +160,54 @@ public class RunicRegistry {
                 () -> AttachmentType.builder(() -> new SpellAttachment()).serialize(SpellAttachment.Serializer.INSTANCE).copyOnDeath().build());
 
         private static void poke() {
+        }
+    }
+    public static class EntityDataSerializers {
+        private static final EntityDataSerializer<Spell> SPELL_SERIALIZER = new EntityDataSerializer<>() {
+            @Override
+            public void write(FriendlyByteBuf pBuffer, Spell pValue) {
+                pBuffer.writeResourceLocation(pValue.getId());
+            }
+            @Override
+            public Spell read(FriendlyByteBuf pBuffer) {
+                return Spell.getSpellFromId(pBuffer.readResourceLocation());
+            }
+            @Override
+            public Spell copy(Spell pValue) {
+                return Spell.getSpellFromId(pValue.getId());
+            }
+        };
+        public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Spell>> SPELL_SERIALIZER_HOLDER = R.custom("spell_serializer", NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, () -> SPELL_SERIALIZER);
 
+        private static final EntityDataSerializer<List<SpellModifier>> SPELL_MODIFIERS_SERIALIZER = new EntityDataSerializer<>() {
+            @Override
+            public void write(FriendlyByteBuf pBuffer, List<SpellModifier> pValue) {
+                pBuffer.writeCollection(pValue, this::write);
+            }
+
+            @Override
+            public List<SpellModifier> read(FriendlyByteBuf pBuffer) {
+                return pBuffer.readList(this::readModifier);
+            }
+
+            @Override
+            public List<SpellModifier> copy(List<SpellModifier> pValue) {
+                return new ArrayList<>(pValue);
+            }
+
+            private void write(FriendlyByteBuf buf, SpellModifier modifier) {
+                ResourceLocation id = CustomRegistries.SPELL_MODIFIER_REGISTRY.getKey(modifier);
+                if (id == null) id = Runic.loc("unknown");
+                buf.writeResourceLocation(id);
+            }
+
+            private SpellModifier readModifier(FriendlyByteBuf buf) {
+                ResourceLocation id = buf.readResourceLocation();
+                return CustomRegistries.SPELL_MODIFIER_REGISTRY.get(id);
+            }
+        };
+        public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<List<SpellModifier>>> SPELL_MODIFIER_SERIALIZER_HOLDER = R.custom("spell_serializer", NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, () -> SPELL_MODIFIERS_SERIALIZER);
+        private static void poke() {
         }
     }
 }
