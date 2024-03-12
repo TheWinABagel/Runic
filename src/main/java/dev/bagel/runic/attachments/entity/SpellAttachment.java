@@ -1,6 +1,9 @@
 package dev.bagel.runic.attachments.entity;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bagel.runic.misc.NBTHelper;
+import dev.bagel.runic.misc.RunicCodecs;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
@@ -16,9 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 public class SpellAttachment {
+    public static final Codec<SpellAttachment> CODEC = RecordCodecBuilder.create(inst -> inst.group(Codec.STRING.fieldOf("spellId").forGetter(e -> Spell.getIdFromSpell(e.spell).toString()),
+            Codec.unboundedMap(RunicCodecs.SPELL_CODEC, RunicCodecs.SPELL_MODIFIER_CODEC.listOf()).fieldOf("modifiers")
+            .forGetter(a -> a.modifiers)).apply(inst, SpellAttachment::new));
 
     private Spell spell;
-    private Map<Spell, List<SpellModifier>> modifiers;
+    private final Map<Spell, List<SpellModifier>> modifiers;
     public SpellAttachment() {
         this.spell = RunicRegistry.Spells.EMPTY.get();
         this.modifiers = new HashMap<>();

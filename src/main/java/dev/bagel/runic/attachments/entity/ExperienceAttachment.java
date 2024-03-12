@@ -1,38 +1,40 @@
 package dev.bagel.runic.attachments.entity;
 
-import dev.bagel.runic.misc.NBTHelper;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bagel.runic.misc.RunicCodecs;
 import dev.bagel.runic.spell.Spell;
-import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
-import net.neoforged.neoforge.attachment.IAttachmentSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExperienceAttachment {
+    public static final Codec<ExperienceAttachment> CODEC = RecordCodecBuilder.create(inst ->
+            inst.group(Codec.unboundedMap(RunicCodecs.SPELL_CODEC, Codec.INT).fieldOf("levels").forGetter(obj -> obj.levels)
+                    , Codec.unboundedMap(RunicCodecs.SPELL_CODEC, Codec.DOUBLE).fieldOf("experience").forGetter(obj -> obj.experience))
+                    .apply(inst, ExperienceAttachment::new));
     public static final double MAX_EXPERIENCE = 1_000_000;
-    private final Object2DoubleMap<Spell> experience;
-    private final Object2IntMap<Spell> levels;
+    private final Map<Spell, Double> experience;
+    private final Map<Spell, Integer> levels;
 
     public ExperienceAttachment() {
-        this.experience = new Object2DoubleOpenHashMap<>();
-        this.levels = new Object2IntOpenHashMap<>();
+        this.experience = new HashMap<>();
+        this.levels = new HashMap<>();
     }
 
-    public ExperienceAttachment(Object2IntMap<Spell> levels, Object2DoubleOpenHashMap<Spell> experience) {
+    public ExperienceAttachment(Map<Spell, Integer> levels, Map<Spell, Double> experience) {
         this.experience = experience;
         this.levels = levels;
     }
 
     private void levelUp(Spell spell) {
-        this.levels.put(spell, this.levels.getInt(spell) + 1);
+        this.levels.put(spell, this.levels.get(spell) + 1);
     }
 
     public boolean addExperience(Spell spell, double added) {
         boolean leveledUp = false;
-        double currentTotal = this.experience.getDouble(spell);
+        double currentTotal = this.experience.get(spell);
         //Clamps to max - current to make it so you cant add more than max
         added = Mth.clamp(added, 0d, MAX_EXPERIENCE - currentTotal);
         //sets current xp to new clamped experience plus current XP
@@ -54,45 +56,24 @@ public class ExperienceAttachment {
     }
 
     public double requiredXpForNextLevel(Spell spell) {
-        return this.xpCalculation(levels.getInt(spell) + 1);
+        return this.xpCalculation(levels.get(spell) + 1);
     }
 
     //ugly
     public double getXP(Spell spell) {
-        double result = experience.getDouble(spell);
+        double result = experience.get(spell);
         return result;
     }
 
     public int getLevel(Spell spell) {
-        return levels.getInt(spell);
+        return levels.get(spell);
     }
 
-    public Object2DoubleMap<Spell> getExperienceMap() {
+    public Map<Spell, Double> getExperienceMap() {
         return experience;
     }
 
-    public Object2IntMap<Spell> getLevelsMap() {
+    public Map<Spell, Integer> getLevelsMap() {
         return levels;
-    }
-
-    public static class Serializer implements IAttachmentSerializer<CompoundTag, ExperienceAttachment> {
-        public static final Serializer INSTANCE = new Serializer();
-        private Serializer() {
-        }
-
-        @Override
-        public ExperienceAttachment read(IAttachmentHolder holder, CompoundTag tag) {
-            Object2IntMap<Spell> levelMap = NBTHelper.loadIntMap(tag, "levels", Spell::getSpellFromId);
-            Object2DoubleOpenHashMap<Spell> xpMap = NBTHelper.loadDoubleMap(tag, "experience", Spell::getSpellFromId);
-            return new ExperienceAttachment(levelMap, xpMap);
-        }
-
-        @Override
-        public CompoundTag write(ExperienceAttachment attachment) {
-            CompoundTag tag = new CompoundTag();
-            NBTHelper.saveIntMap(tag, attachment.getLevelsMap(), "levels");
-            NBTHelper.saveDoubleMap(tag, attachment.getExperienceMap(), "experience");
-            return tag;
-        }
     }
 }

@@ -134,6 +134,7 @@ public class RunicRegistry {
         }
     }
     public static class SpellModifiers {
+        public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> BLANK_MODIFIER = R.spellModifier("blank_modifier", ProjectileSpellModifier::new);
         public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> PROJECTILE_MODIFIER = R.spellModifier("projectile_modifier", ProjectileSpellModifier::new);
         public static final DeferredHolder<SpellModifier, SelfSpellModifier> SELF_MODIFIER = R.spellModifier("self_modifier", SelfSpellModifier::new);
 
@@ -151,13 +152,13 @@ public class RunicRegistry {
     public static class Attachments {
 
         public static DeferredHolder<AttachmentType<?>, AttachmentType<ExperienceAttachment>> EXPERIENCE = R.attachment("experience",
-                () -> AttachmentType.builder(ExperienceAttachment::new).serialize(ExperienceAttachment.Serializer.INSTANCE).copyOnDeath().build());
+                () -> AttachmentType.builder(ExperienceAttachment::new).serialize(ExperienceAttachment.CODEC).copyOnDeath().build());
 
         public static DeferredHolder<AttachmentType<?>, AttachmentType<RuneAttachment>> RUNES = R.attachment("runes",
-                () -> AttachmentType.builder(() -> new RuneAttachment()).serialize(RuneAttachment.Serializer.INSTANCE).copyOnDeath().build());
+                () -> AttachmentType.builder(RuneAttachment::new).serialize(RuneAttachment.CODEC).copyOnDeath().build());
 
         public static DeferredHolder<AttachmentType<?>, AttachmentType<SpellAttachment>> SPELL = R.attachment("spell",
-                () -> AttachmentType.builder(() -> new SpellAttachment()).serialize(SpellAttachment.Serializer.INSTANCE).copyOnDeath().build());
+                () -> AttachmentType.builder(SpellAttachment::new).serialize(SpellAttachment.CODEC).copyOnDeath().build());
 
         private static void poke() {
         }

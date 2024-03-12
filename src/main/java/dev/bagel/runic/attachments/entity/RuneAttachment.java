@@ -1,10 +1,11 @@
 package dev.bagel.runic.attachments.entity;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bagel.runic.registry.item.RuneItem;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -12,11 +13,16 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RuneAttachment {
+    public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst ->
+            inst.group(Codec.STRING.xmap(CapacityTier::valueOf, CapacityTier::name).fieldOf("capacityTier")
+                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(RuneType::valueOf, RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(a -> a.runeMap)).apply(inst, RuneAttachment::new));
+
     private CapacityTier capacityTier;
-    private final Object2IntMap<RuneType> runeMap = new Object2IntOpenHashMap<>();
+    private final Map<RuneType, Integer> runeMap = new Object2IntOpenHashMap<>();
     public RuneAttachment() {
         this.capacityTier = CapacityTier.TIER_0;
         for (RuneType type : RuneType.values()) {
@@ -24,7 +30,7 @@ public class RuneAttachment {
         }
     }
 
-    public RuneAttachment(CapacityTier capacityTier) {
+    public RuneAttachment(CapacityTier capacityTier, Map<RuneType, Integer> runeMap) {
         this();
         this.capacityTier = capacityTier;
     }
@@ -38,7 +44,7 @@ public class RuneAttachment {
     }
 
     public int getRunes(RuneType type) {
-        return runeMap.getInt(type);
+        return runeMap.get(type);
     }
 
     public int setRunes(RuneType type, int value) {
@@ -76,7 +82,7 @@ public class RuneAttachment {
     }
 
     private int addRunesInternal(RuneType type, int amount) {
-        int totalAmount = runeMap.getInt(type) + amount;
+        int totalAmount = runeMap.get(type) + amount;
         totalAmount = Mth.clamp(totalAmount, 0, capacityTier.maxRunes);
         return runeMap.put(type, totalAmount);
 
