@@ -15,7 +15,7 @@ public class ExpCommand {
         builder.then(Commands.literal("exp").requires(c -> c.hasPermission(2))
                 .then(Commands.argument("xp", ResourceLocationArgument.id()).suggests(SetSpellCommand.SUGGEST_SPELL).executes(ctx -> {
                     Player p = ctx.getSource().getPlayerOrException();
-                    Spell spell = RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(ctx.getArgument("xp", ResourceLocation.class));
+                    Spell spell = Spell.getSpellFromId(ctx.getArgument("xp", ResourceLocation.class));
                     if (spell != null) {
                         var xpComponent = p.getData(RunicRegistry.Attachments.EXPERIENCE);
                         boolean levelled = xpComponent.addExperience(spell, 10D);

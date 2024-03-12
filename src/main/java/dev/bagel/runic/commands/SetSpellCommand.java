@@ -19,7 +19,7 @@ public class SetSpellCommand {
         builder.then(Commands.literal("spells").requires(c -> c.hasPermission(2))
                 .then(Commands.argument("spell", ResourceLocationArgument.id()).suggests(SUGGEST_SPELL).executes(ctx -> {
                             Player p = ctx.getSource().getPlayerOrException();
-                            Spell spell = RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(ctx.getArgument("spell", ResourceLocation.class));
+                            Spell spell = Spell.getSpellFromId(ctx.getArgument("spell", ResourceLocation.class));
                             if (spell != null) {
                                 p.getData(RunicRegistry.Attachments.SPELL).setSpell(spell);
                                 p.sendSystemMessage(Component.literal("Set spell to " + spell.getId()));

@@ -14,13 +14,15 @@ import net.neoforged.neoforge.common.NeoForge;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Runic.MODID, bus = Bus.MOD)
 public class RunicClient {
 
-    public RunicClient(IEventBus bus) {
-        ClientRunicRegistry.init();
+    @SubscribeEvent
+    public static void setup(FMLClientSetupEvent e) {
+
     }
 
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent e) {
         NeoForge.EVENT_BUS.register(RuneMenuKeybind.class);
+
     }
 
     @SubscribeEvent

@@ -4,10 +4,10 @@ import dev.bagel.runic.Runic;
 import dev.bagel.runic.attachments.entity.ExperienceAttachment;
 import dev.bagel.runic.attachments.entity.RuneAttachment;
 import dev.bagel.runic.attachments.entity.SpellAttachment;
-import dev.bagel.runic.multiblock.MultiblockTypes;
 import dev.bagel.runic.registry.block.RuneAltarBlock;
 import dev.bagel.runic.registry.block.entity.RuneAltarBlockEntity;
 import dev.bagel.runic.registry.effect.RunicEffect;
+import dev.bagel.runic.registry.entity.SpellProjectileEntity;
 import dev.bagel.runic.registry.item.CastingItem;
 import dev.bagel.runic.registry.menu.SpellbookMenu;
 import dev.bagel.runic.registry.item.CapacityUpgradeItem;
@@ -29,6 +29,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
@@ -48,6 +50,7 @@ public class RunicRegistry {
         Menus.poke();
         Spells.poke();
         Effects.poke();
+        Entities.poke();
         Attachments.poke();
     }
 
@@ -103,11 +106,18 @@ public class RunicRegistry {
         }
     }
 
+    public static class Entities {
+
+        public static final DeferredHolder<EntityType<?>, EntityType<SpellProjectileEntity>> SPELL_PROJECTILE = R.entity("spell_projectile", () -> EntityType.Builder.<SpellProjectileEntity>of(SpellProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20).build("spell_projectile"));
+        private static void poke() {
+        }
+    }
+
     public static class Spells {
         public static final DeferredHolder<Spell, EmptySpell> EMPTY = R.spell("blank_spell", EmptySpell::new);
-        public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(0, 5, CastType.TOUCH));
-        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(0, RuneType.AIR, 5, CastType.SELF));
-        public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(0, 5, RuneType.AIR,  CastType.SELF));
+        public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(5, CastType.PROJECTILE));
+        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(5, CastType.SELF));
+        public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(5,  CastType.SELF));
 
         private static void poke() {
         }

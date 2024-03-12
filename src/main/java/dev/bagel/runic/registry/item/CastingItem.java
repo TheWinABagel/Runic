@@ -1,8 +1,12 @@
 package dev.bagel.runic.registry.item;
 
 import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.registry.entity.SpellProjectileEntity;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
+import dev.bagel.runic.spell.casting.CastContext;
+import dev.bagel.runic.spell.casting.CastType;
+import dev.bagel.runic.spell.modifiers.SpellModifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,13 +30,33 @@ public class CastingItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        //for each modifier check all cast types then fire all
+        //have each cast modify the spell cast context, so it iterates all modifiers in order and applies them
         ItemStack stack = player.getItemInHand(usedHand);
         if (level.isClientSide()) return InteractionResultHolder.pass(stack);
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
-        if (!canCast(player, spell)) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+//        if (!canCast(player, spell)) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
 
-        player.sendSystemMessage(Component.literal("cast"));
-        return new InteractionResultHolder<>(spell.onCast(level, player, stack, spell), stack);
+//        for (SpellModifier modifier : player.getData(spellModifiers or whatever) TODO
+        SpellProjectileEntity entity = null;
+//            if (CastType.makesProjectile(modifier.getCastType())) {
+//                SpellProjectileEntity projectile = new SpellProjectileEntity(level);
+//                projectile.setOwner(player);
+//                projectile.setSpell(spell);
+//                projectile.setStack(stack);
+//                projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0F, 0.7F, 0F);
+//                level.addFreshEntity(projectile);
+//            }
+        new CastContext(level, player, spell, stack, null, entity);
+
+        if (spell.castType.is(CastType.PROJECTILE)) {
+            player.sendSystemMessage(Component.literal("projectile cast"));
+
+            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        } else {
+            player.sendSystemMessage(Component.literal("normal cast"));
+            return new InteractionResultHolder<>(spell.onCast(level, player, stack, spell), stack);
+        }
     }
 
     @Override
@@ -45,7 +69,8 @@ public class CastingItem extends Item {
         if (!canCast(player, spell)) return InteractionResult.PASS;
 
         player.sendSystemMessage(Component.literal("block"));
-        return spell.onHitBlock(ctx.getLevel(), ctx.getPlayer(), hitResult, spell);
+
+        return spell.onHitBlock(ctx.getLevel(), ctx.getPlayer(), hitResult, ctx.getItemInHand(), spell);
     }
 
     @Override
@@ -53,7 +78,7 @@ public class CastingItem extends Item {
         if (player.level().isClientSide()) return InteractionResult.PASS;
         Spell spell = player.getData(RunicRegistry.Attachments.SPELL).getSpell();
         if (!canCast(player, spell)) return InteractionResult.PASS;
-        player.sendSystemMessage(Component.literal("entity"));
+        player.sendSystemMessage(Component.literal("spellProjectile"));
         return spell.onHitEntity(target.level(), player, target, stack, spell);
     }
 

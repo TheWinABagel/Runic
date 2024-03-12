@@ -14,8 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class BasicEffectSpell extends Spell {
-    public BasicEffectSpell(int level, RuneType primaryRune, int castXp, CastType type) {
-        super(level, castXp, primaryRune, type);
+    public BasicEffectSpell(int castXp, CastType type) {
+        super(castXp, type);
     }
 
     @Override

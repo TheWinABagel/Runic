@@ -6,6 +6,6 @@ import dev.bagel.runic.spell.casting.CastType;
 
 public class EmptySpell extends Spell {
     public EmptySpell() {
-        super(0, 0, RuneType.BLANK, CastType.NONE);
+        super(0, CastType.NONE);
     }
 }

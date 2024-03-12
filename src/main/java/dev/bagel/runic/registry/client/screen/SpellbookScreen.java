@@ -1,4 +1,4 @@
-package dev.bagel.runic.registry.client.screens;
+package dev.bagel.runic.registry.client.screen;
 
 import dev.bagel.runic.registry.menu.SpellbookMenu;
 import net.minecraft.client.gui.GuiGraphics;

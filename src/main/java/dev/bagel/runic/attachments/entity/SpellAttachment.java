@@ -14,7 +14,7 @@ public class SpellAttachment {
     }
 
     public SpellAttachment(String spellId) {
-        Spell spell = RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(new ResourceLocation(spellId));
+        Spell spell = Spell.getSpellFromId(new ResourceLocation(spellId));
         this.spell = spell == null ? RunicRegistry.Spells.EMPTY.get() : spell;
     }
 

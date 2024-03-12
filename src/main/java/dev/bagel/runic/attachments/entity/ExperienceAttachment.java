@@ -85,11 +85,11 @@ public class ExperienceAttachment {
             CompoundTag xpList = tag.getCompound("experience");
             Object2IntMap<Spell> levelMap = new Object2IntOpenHashMap<>();
             for (String key : levelList.getAllKeys()) {
-                levelMap.put(RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(new ResourceLocation(key)), levelList.getInt(key));
+                levelMap.put(Spell.getSpellFromId(new ResourceLocation(key)), levelList.getInt(key));
             }
             Object2DoubleOpenHashMap<Spell> xpMap = new Object2DoubleOpenHashMap<>();
             for (String key : xpList.getAllKeys()) {
-                xpMap.put(RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(new ResourceLocation(key)), xpList.getDouble(key));
+                xpMap.put(Spell.getSpellFromId(new ResourceLocation(key)), xpList.getDouble(key));
             }
             return new ExperienceAttachment(levelMap, xpMap);
         }

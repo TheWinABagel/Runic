@@ -10,8 +10,10 @@ import dev.bagel.runic.spell.casting.CastType;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,25 +24,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Spell {
-    public RuneType primaryRune = RuneType.BLANK;
     public ResourceLocation id;
-    public CastType castType = CastType.TOUCH;
+    public CastType castType;
     private final HashSet<RuneCost> runeCosts = new HashSet<>();
-    public int level;
-    public int castXp;
+    public final int castXp;
 
-    public Spell(int level, int castXp) {
-        this.level = level;
-        this.castXp = castXp;
-    }
-
-    public Spell(int level, int castXp, RuneType primaryRune) {
-        this(level, castXp);
-        this.primaryRune = primaryRune;
-    }
-
-    public Spell(int level, int castXp, RuneType primaryRune, CastType castType) {
-        this(level, castXp, primaryRune);
+    public Spell(int baseCastXp, CastType castType) {
+        this.castXp = baseCastXp;
         this.castType = castType;
     }
 
@@ -61,42 +51,63 @@ public abstract class Spell {
     }
 
     public ResourceLocation getId() {
-        return RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(this);
+        return getIdFromSpell(this);
     }
 
-    protected Spell setCostForRune(RuneType type, int value) {
+    public void setCostForRune(RuneType type, int value) {
+        runeCosts.removeIf(runeCost -> runeCost.type() == type);
         runeCosts.add(new RuneCost(type, value));
-        return this;
     }
 
     public boolean canAfford(Player player) {
-        AtomicBoolean canAfford = new AtomicBoolean(true);
-        this.getRuneCosts().forEach(type -> {
-            if (player.getData(RunicRegistry.Attachments.RUNES).getRunes(type.type()) - type.cost() < 0) {
-                canAfford.set(false);
+        boolean canAfford = true;
+        for (RuneCost cost : this.runeCosts) {
+            if (player.getData(RunicRegistry.Attachments.RUNES).getRunes(cost.type()) - cost.cost() < 0) {
+                canAfford = false;
             }
-        });
-        return canAfford.get();
+        }
+        return canAfford;
     }
 
-    public boolean is(Spell other) {
-        return RunicRegistry.CustomRegistries.SPELL_REGISTRY.getId(other) == RunicRegistry.CustomRegistries.SPELL_REGISTRY.getId(this);
-    }
 
     public InteractionResult onCast(Level level, Player player, ItemStack usedStack, Spell spell) {
         return InteractionResult.PASS;
     }
 
-    public InteractionResult onHitBlock(Level level, Player player, BlockHitResult hitResult, Spell spell) {
+    public InteractionResult onHitBlock(Level level, Player player, BlockHitResult hitResult, ItemStack usedStack, Spell spell) {
         return InteractionResult.PASS;
     }
 
-    public InteractionResult onHitEntity(Level level, Player player, LivingEntity target, ItemStack usedStack, Spell spell){
+    public InteractionResult onHitEntity(Level level, Player player, Entity target, ItemStack usedStack, Spell spell) {
         return InteractionResult.PASS;
+    }
+
+
+    public CompoundTag save(CompoundTag tag) {
+        if (!(this.id == null)) {
+            tag.putString("spell", id.toString());
+        }
+        else {
+            tag.putString("spell", RunicRegistry.Spells.EMPTY.getId().toString());
+        }
+        return tag;
+    }
+
+    public static Spell load(CompoundTag tag) {
+        ResourceLocation id = new ResourceLocation(tag.getString("spell"));
+        return Spell.getSpellFromId(id);
     }
 
     @Override
     public String toString() {
-        return "Spell: [" + RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(this) + "]";
+        return "Spell: [" + getIdFromSpell(this) + "]";
+    }
+
+    public static Spell getSpellFromId(ResourceLocation id) {
+        return RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(id);
+    }
+
+    public static ResourceLocation getIdFromSpell(Spell spell) {
+        return RunicRegistry.CustomRegistries.SPELL_REGISTRY.getKey(spell);
     }
 }
