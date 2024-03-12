@@ -1,68 +1,112 @@
 package dev.bagel.runic.attachments.entity;
 
+import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.spell.Spell;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
+import java.math.BigDecimal;
+
 public class ExperienceAttachment {
-    private int level;
-    private int totalExperience;
+    public static final double MAX_EXPERIENCE = 1_000_000;
+    private final Object2DoubleMap<Spell> experience;
+    private final Object2IntMap<Spell> levels;
 
     public ExperienceAttachment() {
-        this.level = 0;
-        this.totalExperience = 0;
+        this.experience = new Object2DoubleOpenHashMap<>();
+        this.levels = new Object2IntOpenHashMap<>();
     }
 
-    public ExperienceAttachment(int level, int totalExperience) {
-        this.level = level;
-        this.totalExperience = totalExperience;
+    public ExperienceAttachment(Object2IntMap<Spell> levels, Object2DoubleOpenHashMap<Spell> experience) {
+        this.experience = experience;
+        this.levels = levels;
     }
 
-    private void addLevel() {
-        this.level+= 1;
+    private void levelUp(Spell spell) {
+        this.levels.put(spell, this.levels.getInt(spell) + 1);
     }
 
-    public void addExperience(int added) {
-        int currentTotal = this.totalExperience;
-        added = Mth.clamp(added, 0, Integer.MAX_VALUE - currentTotal);
-        this.totalExperience+=added;
-        for (int totalAdded = added + currentTotal; totalAdded < 0;) {
-            if (totalAdded >= requiredXp()) {
-                this.addLevel();
+    public boolean addExperience(Spell spell, double added) {
+        boolean leveledUp = false;
+        double currentTotal = this.experience.getDouble(spell);
+        //Clamps to max - current to make it so you cant add more than max
+        added = Mth.clamp(added, 0d, MAX_EXPERIENCE - currentTotal);
+        //sets current xp to new clamped experience plus current XP
+        this.experience.put(spell, added + currentTotal);
+        //Sets new level if it changed
+        for (double newTotal = currentTotal + added; newTotal > 0;) {
+            //If new amount is more than required XP to level up
+            if (newTotal >= requiredXpForNextLevel(spell)) {
+                this.levelUp(spell);
+                leveledUp = true;
             }
-            totalAdded-= added;
+            newTotal-= added;
         }
+        return leveledUp;
     }
 
-    public int getExperienceForLevel(int nextLevel) {
-        int total = nextLevel - 1 + 50 * (2 * ((nextLevel - 1) / 7)) * 10;
-        total = round(total);
-        return total;
+    public double xpCalculation(double level) {
+        return level - 1 + 50 * (2 * ((level - 1D) / 7));
     }
 
-    public int requiredXp() {
-        return this.getExperienceForLevel(level + 1);
+    public double requiredXpForNextLevel(Spell spell) {
+        return this.xpCalculation(levels.getInt(spell) + 1);
     }
 
-    private int round(int current) {
-        return current - (current % 10);
+    //ugly
+    public double getXP(Spell spell) {
+        double result = experience.getDouble(spell);
+        return result;
     }
 
+    public int getLevel(Spell spell) {
+        return levels.getInt(spell);
+    }
+
+    public Object2DoubleMap<Spell> getExperienceMap() {
+        return experience;
+    }
+
+    public Object2IntMap<Spell> getLevelsMap() {
+        return levels;
+    }
     public static class Serializer implements IAttachmentSerializer<CompoundTag, ExperienceAttachment> {
         public static final Serializer INSTANCE = new Serializer();
         private Serializer() {
         }
 
         @Override
-        public ExperienceAttachment read(CompoundTag tag) {
-            return new ExperienceAttachment(tag.getInt("level"), tag.getInt("experience"));
+        public ExperienceAttachment read(IAttachmentHolder holder, CompoundTag tag) {
+            CompoundTag levelList = tag.getCompound("levels");
+            CompoundTag xpList = tag.getCompound("experience");
+            Object2IntMap<Spell> levelMap = new Object2IntOpenHashMap<>();
+            for (String key : levelList.getAllKeys()) {
+                levelMap.put(RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(new ResourceLocation(key)), levelList.getInt(key));
+            }
+            Object2DoubleOpenHashMap<Spell> xpMap = new Object2DoubleOpenHashMap<>();
+            for (String key : xpList.getAllKeys()) {
+                xpMap.put(RunicRegistry.CustomRegistries.SPELL_REGISTRY.get(new ResourceLocation(key)), xpList.getDouble(key));
+            }
+            return new ExperienceAttachment(levelMap, xpMap);
         }
 
         @Override
         public CompoundTag write(ExperienceAttachment attachment) {
             CompoundTag tag = new CompoundTag();
-            tag.putInt("level", attachment.level);
-            tag.putInt("experience", attachment.totalExperience);
+            CompoundTag levelList = new CompoundTag();
+            CompoundTag xpList = new CompoundTag();
+            attachment.getLevelsMap().forEach((spell, level) -> {
+                levelList.putInt(spell.getId().toString(), level);
+            });
+            attachment.getExperienceMap().forEach((spell, xp) -> {
+                xpList.putDouble(spell.getId().toString(), xp);
+            });
+            tag.put("levels", levelList);
+            tag.put("experience", xpList);
             return tag;
         }
     }

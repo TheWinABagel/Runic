@@ -1,12 +1,12 @@
 {
   "list": [
     "####",
-    "#XX#",
+    "#$X#",
     "#XX#",
     "####"
   ],
   "map": {
     "#": "minecraft:cobblestone",
-    "X": "minecraft:gold"
+    "X": "minecraft:dirt"
   }
 }

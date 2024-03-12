@@ -4,6 +4,7 @@ import dev.bagel.runic.Runic;
 import dev.bagel.runic.attachments.entity.ExperienceAttachment;
 import dev.bagel.runic.attachments.entity.RuneAttachment;
 import dev.bagel.runic.attachments.entity.SpellAttachment;
+import dev.bagel.runic.multiblock.MultiblockTypes;
 import dev.bagel.runic.registry.block.RuneAltarBlock;
 import dev.bagel.runic.registry.block.entity.RuneAltarBlockEntity;
 import dev.bagel.runic.registry.effect.RunicEffect;
@@ -17,7 +18,9 @@ import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.casting.CastType;
+import dev.bagel.runic.spell.modifiers.SpellModifier;
 import dev.bagel.runic.spell.spells.BasicBreakSpell;
+import dev.bagel.runic.spell.spells.BasicDamageSpell;
 import dev.bagel.runic.spell.spells.BasicEffectSpell;
 import dev.bagel.runic.spell.spells.EmptySpell;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
@@ -54,9 +57,7 @@ public class RunicRegistry {
         public static DeferredItem<RuneItem> AIR_RUNE = R.item("air_rune", () -> new RuneItem(RuneType.AIR));
         public static DeferredItem<RuneItem> EARTH_RUNE = R.item("earth_rune", () -> new RuneItem(RuneType.EARTH));
         public static DeferredItem<RuneItem> WATER_RUNE = R.item("water_rune", () -> new RuneItem(RuneType.WATER));
-        public static DeferredItem<RuneItem> BODY_RUNE = R.item("body_rune", () -> new RuneItem(RuneType.BODY));
-        public static DeferredItem<RuneItem> MIND_RUNE = R.item("mind_rune", () -> new RuneItem(RuneType.MIND));
-        public static DeferredItem<RuneItem> LAW_RUNE = R.item("law_rune", () -> new RuneItem(RuneType.MIND));
+        public static DeferredItem<RuneItem> LAW_RUNE = R.item("law_rune", () -> new RuneItem(RuneType.LAW));
         public static DeferredItem<CapacityUpgradeItem> TIER_1_POUCH = R.item("tier_1_pouch", () -> new CapacityUpgradeItem(CapacityTier.TIER_1));
         public static DeferredItem<CapacityUpgradeItem> TIER_2_POUCH = R.item("tier_2_pouch", () -> new CapacityUpgradeItem(CapacityTier.TIER_2));
         public static DeferredItem<CapacityUpgradeItem> TIER_3_POUCH = R.item("tier_3_pouch", () -> new CapacityUpgradeItem(CapacityTier.TIER_3));
@@ -83,7 +84,7 @@ public class RunicRegistry {
                 .icon(() -> new ItemStack(Items.WATER_RUNE.asItem())).build());
         static
         {
-            TabFillingRegistry.register(RunicRegistry.CreativeTab.RUNIC_TAB_KEY, Items.AIR_RUNE, Items.BODY_RUNE);
+            TabFillingRegistry.register(RunicRegistry.CreativeTab.RUNIC_TAB_KEY, Items.AIR_RUNE);
         }
         private static void poke() {
         }
@@ -105,7 +106,8 @@ public class RunicRegistry {
     public static class Spells {
         public static final DeferredHolder<Spell, EmptySpell> EMPTY = R.spell("blank_spell", EmptySpell::new);
         public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(0, 5, CastType.TOUCH));
-        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(0, RuneType.BODY, 5, CastType.SELF));
+        public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(0, RuneType.AIR, 5, CastType.SELF));
+        public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(0, 5, RuneType.AIR,  CastType.SELF));
 
         private static void poke() {
         }
@@ -114,6 +116,8 @@ public class RunicRegistry {
     public static class CustomRegistries {
         public static final ResourceKey<Registry<Spell>> SPELL_KEY = ResourceKey.createRegistryKey(Runic.loc("spells"));
         public static final Registry<Spell> SPELL_REGISTRY = R.registry(SPELL_KEY, builder -> builder.sync(true));
+        public static final ResourceKey<Registry<SpellModifier>> SPELL_MODIFIER_KEY = ResourceKey.createRegistryKey(Runic.loc("spell_modifiers"));
+        public static final Registry<SpellModifier> SPELL_MODIFIER_REGISTRY = R.registry(SPELL_MODIFIER_KEY, builder -> builder.sync(true));
     }
 
     public static class Attachments {

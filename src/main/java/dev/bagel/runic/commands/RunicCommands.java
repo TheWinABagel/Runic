@@ -12,6 +12,7 @@ public class RunicCommands {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("runic");
         SetSpellCommand.register(builder);
         MultiblockCommand.register(builder);
+        ExpCommand.register(builder);
         dispatcher.register(builder);
     }
 }

@@ -6,11 +6,5 @@ public enum RuneType {
     AIR,
     EARTH,
     WATER,
-    BODY,
-    MIND,
     LAW;
-
-//    private final String id;
-
-
 }

@@ -8,6 +8,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
@@ -28,9 +29,9 @@ public class RuneMenuKeybind {
     }
 
     @SubscribeEvent
-    public static void keys(InputEvent.Key e) {
+    public static void keyInput(InputEvent.Key e) {
         if (e.getAction() == InputConstants.PRESS && RUNE_MENU.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
-            PacketDistributor.SERVER.noArg().send(new PatreonDisableMessage(0));
+            PacketDistributor.SERVER.noArg().send(new RuneMenuOpenMessage());
         }
     }
 }

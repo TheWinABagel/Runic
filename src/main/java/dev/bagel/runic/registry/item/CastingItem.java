@@ -62,7 +62,7 @@ public class CastingItem extends Item {
             player.sendSystemMessage(Component.translatable("Cannot afford spell: %s, %s", spell.toString(), spell.getRuneCosts()));
             return false;
         }
-        spell.getRuneCosts().forEach((type, integer) -> player.getData(RunicRegistry.Attachments.RUNES).removeRunes(type, integer));
+        spell.getRuneCosts().forEach(cost -> player.getData(RunicRegistry.Attachments.RUNES).removeRunes(cost.type(), cost.cost()));
         return true;
     }
 }

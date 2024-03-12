@@ -22,12 +22,10 @@ public class ItemModelDatagen extends ItemModelProvider {
         basicItem(RunicRegistry.Items.FIRE_STAFF.asItem());
         basicItem(RunicRegistry.Items.AIR_RUNE.asItem());
         basicItem(RunicRegistry.Items.BLANK_RUNE.asItem());
-        basicItem(RunicRegistry.Items.BODY_RUNE.asItem());
         basicItem(RunicRegistry.Items.EARTH_RUNE.asItem());
         basicItem(RunicRegistry.Items.FIRE_RUNE.asItem());
         basicItem(RunicRegistry.Items.LAW_RUNE.asItem());
         basicItem(RunicRegistry.Items.WATER_RUNE.asItem());
-        basicItem(RunicRegistry.Items.MIND_RUNE.asItem());
         basicItem(RunicRegistry.Items.TIER_1_POUCH.asItem());
     }
 }

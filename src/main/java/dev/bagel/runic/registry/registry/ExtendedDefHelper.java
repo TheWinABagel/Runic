@@ -3,6 +3,7 @@ package dev.bagel.runic.registry.registry;
 import dev.bagel.runic.Runic;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
+import dev.bagel.runic.spell.modifiers.SpellModifier;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -46,7 +47,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 /**
- * Copied from Placebo instead of extending as extending something with @SubscribeEvent is now impossible
+ * Copied from Placebo instead of extending as extending something with @SubscribeEvent is now impossible :(
  * */
 public class ExtendedDefHelper {
     protected final String modid;
@@ -63,6 +64,10 @@ public class ExtendedDefHelper {
 
     public <T extends Spell> DeferredHolder<Spell, T> spell(String path, Supplier<T> spell) {
         return registerDH(path, RunicRegistry.CustomRegistries.SPELL_KEY, spell);
+    }
+
+    public <T extends SpellModifier> DeferredHolder<SpellModifier, T> spellModifier(String path, Supplier<T> spell) {
+        return registerDH(path, RunicRegistry.CustomRegistries.SPELL_MODIFIER_KEY, spell);
     }
 
     public <T extends AttachmentType<?>> DeferredHolder<AttachmentType<?>, T> attachment(String path, Supplier<T> attachment) {

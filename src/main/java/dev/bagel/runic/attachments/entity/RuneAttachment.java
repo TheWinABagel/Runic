@@ -67,8 +67,8 @@ public class RuneAttachment {
 
     public boolean canAfford(Spell spell) {
         AtomicBoolean canAfford = new AtomicBoolean(true);
-        spell.getRuneCosts().forEach((type, integer) -> {
-            if (getRunes(type) - integer < 0) {
+        spell.getRuneCosts().forEach(cost -> {
+            if (getRunes(cost.type()) - cost.cost() < 0) {
                 canAfford.set(false);
             }
         });

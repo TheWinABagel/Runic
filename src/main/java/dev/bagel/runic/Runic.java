@@ -1,8 +1,8 @@
 package dev.bagel.runic;
 
 import dev.bagel.runic.commands.RunicCommands;
+import dev.bagel.runic.datagen.BlockModelDatagen;
 import dev.bagel.runic.datagen.ItemModelDatagen;
-import dev.bagel.runic.multiblock.MultiblockRegistry;
 import dev.bagel.runic.net.RuneMenuOpenMessage;
 import dev.bagel.runic.net.SpellbookMenuOpenMessage;
 import dev.bagel.runic.registry.RunicRegistry;
@@ -40,21 +40,19 @@ public class Runic {
         PayloadHelper.registerPayload(new RuneMenuOpenMessage.Provider());
         PayloadHelper.registerPayload(new SpellbookMenuOpenMessage.Provider());
         TabFillingRegistry.register(RunicRegistry.CreativeTab.RUNIC_TAB_KEY, RunicRegistry.Items.AIR_RUNE);
-        MultiblockRegistry.INSTANCE.registerToBus();
     }
 
     @SubscribeEvent
     public void customRegistries(NewRegistryEvent e) {
         e.register(RunicRegistry.CustomRegistries.SPELL_REGISTRY);
+        e.register(RunicRegistry.CustomRegistries.SPELL_MODIFIER_REGISTRY);
     }
 
     @SubscribeEvent
     public void datagen(GatherDataEvent e) {
         DataGenerator gen = e.getGenerator();
-        gen.addProvider(e.includeClient(), (DataProvider.Factory<ItemModelDatagen>) pOutput -> {
-           return new ItemModelDatagen(pOutput, e.getExistingFileHelper());
-        });
-
+        gen.addProvider(e.includeClient(), (DataProvider.Factory<ItemModelDatagen>) pOutput -> new ItemModelDatagen(pOutput, e.getExistingFileHelper()));
+        gen.addProvider(e.includeClient(), (DataProvider.Factory<BlockModelDatagen>) pOutput -> new BlockModelDatagen(pOutput, e.getExistingFileHelper()));
     }
 
     public void registerCommands(RegisterCommandsEvent e) {

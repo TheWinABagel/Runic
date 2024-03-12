@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bagel.runic.Runic;
 import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.registry.rune_registry.RuneCost;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.casting.CastType;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
@@ -17,25 +18,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Spell {
-
-
     public RuneType primaryRune = RuneType.BLANK;
     public ResourceLocation id;
     public CastType castType = CastType.TOUCH;
-    private final Object2IntMap<RuneType> runeCosts = new Object2IntOpenHashMap<>();
+    private final HashSet<RuneCost> runeCosts = new HashSet<>();
     public int level;
     public int castXp;
 
     public Spell(int level, int castXp) {
         this.level = level;
         this.castXp = castXp;
-        for (RuneType type : RuneType.values()) {
-            runeCosts.put(type, 0);
-        }
     }
 
     public Spell(int level, int castXp, RuneType primaryRune) {
@@ -48,12 +44,19 @@ public abstract class Spell {
         this.castType = castType;
     }
 
-
     public int getCostForRune(RuneType type) {
-        return runeCosts.getInt(type);
+        int cost = 0;
+        while (runeCosts.iterator().hasNext()) {
+            RuneCost rCost = runeCosts.iterator().next();
+            if (rCost.type() == type) {
+                cost = rCost.cost();
+                break;
+            }
+        }
+        return cost;
     }
 
-    public Object2IntMap<RuneType> getRuneCosts() {
+    public Set<RuneCost> getRuneCosts() {
         return runeCosts;
     }
 
@@ -62,14 +65,14 @@ public abstract class Spell {
     }
 
     protected Spell setCostForRune(RuneType type, int value) {
-        runeCosts.put(type, value);
+        runeCosts.add(new RuneCost(type, value));
         return this;
     }
 
     public boolean canAfford(Player player) {
         AtomicBoolean canAfford = new AtomicBoolean(true);
-        this.getRuneCosts().forEach((type, integer) -> {
-            if (player.getData(RunicRegistry.Attachments.RUNES).getRunes(type) - integer < 0) {
+        this.getRuneCosts().forEach(type -> {
+            if (player.getData(RunicRegistry.Attachments.RUNES).getRunes(type.type()) - type.cost() < 0) {
                 canAfford.set(false);
             }
         });
@@ -85,11 +88,11 @@ public abstract class Spell {
     }
 
     public InteractionResult onHitBlock(Level level, Player player, BlockHitResult hitResult, Spell spell) {
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     public InteractionResult onHitEntity(Level level, Player player, LivingEntity target, ItemStack usedStack, Spell spell){
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override

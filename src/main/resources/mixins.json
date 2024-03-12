@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.bagel.runic.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "${modid}.refmap.json",
+  "mixins": [
+    "BlockPatternBuilderAccessor"
+  ],
+  "client": [
+  ],
+  "minVersion": "0.8"
+}
