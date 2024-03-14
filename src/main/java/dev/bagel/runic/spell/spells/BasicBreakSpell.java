@@ -1,8 +1,9 @@
 package dev.bagel.runic.spell.spells;
 
-import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.Runic;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
+import dev.bagel.runic.spell.modifiers.SpellModifierRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -21,7 +22,7 @@ public class BasicBreakSpell extends Spell {
     @Override
     public Object2IntMap<SpellModifier> defaultModifier() {
         Object2IntMap<SpellModifier> map = new Object2IntOpenHashMap<>();
-        map.put(RunicRegistry.SpellModifiers.TOUCH_MODIFIER.get(), 1);
+        map.put(SpellModifierRegistry.INSTANCE.getValue(Runic.loc("base_modifier")), 1);
         return map;
     }
 

@@ -5,7 +5,6 @@ import dev.bagel.runic.registry.entity.SpellProjectileEntity;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.SpellHelper;
-import dev.bagel.runic.spell.casting.CastType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -36,7 +35,7 @@ public class CastingItem extends Item {
 
         SpellProjectileEntity entity = null;
 
-        if (CastType.makesProjectile(spell.castType)) {
+        if (spell.castType.makesProjectile()) {
             entity = new SpellProjectileEntity(level, player);
             entity.setSpell(spell);
             entity.setStack(stack);

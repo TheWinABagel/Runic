@@ -1,8 +1,9 @@
 package dev.bagel.runic.spell.spells;
 
-import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.Runic;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
+import dev.bagel.runic.spell.modifiers.SpellModifierRegistry;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.network.chat.Component;
@@ -21,7 +22,7 @@ public class BasicEffectSpell extends Spell {
     @Override
     public Object2IntMap<SpellModifier> defaultModifier() {
         Object2IntMap<SpellModifier> map = new Object2IntOpenHashMap<>();
-        map.put(RunicRegistry.SpellModifiers.SELF_MODIFIER.get(), 1);
+        map.put(SpellModifierRegistry.INSTANCE.getValue(Runic.loc("base_modifier")), 1);
         return map;
     }
 

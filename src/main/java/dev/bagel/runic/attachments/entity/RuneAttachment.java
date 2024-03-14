@@ -2,6 +2,7 @@ package dev.bagel.runic.attachments.entity;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bagel.runic.misc.RunicCodecs;
 import dev.bagel.runic.registry.item.RuneItem;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
@@ -13,25 +14,22 @@ import java.util.Map;
 import java.util.Objects;
 
 public class RuneAttachment {
-    public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst ->
-            inst.group(Codec.STRING.xmap(str -> Objects.requireNonNull(CapacityTier.valueOf(str)), CapacityTier::name).fieldOf("capacityTier")
-                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(str -> Objects.requireNonNull(RuneType.valueOf(str)), RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(obj -> obj.runeMap)).apply(inst, RuneAttachment::new));
-//    public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst ->
-//            inst.group(Codec.STRING.xmap(CapacityTier::valueOf, CapacityTier::name).fieldOf("capacityTier")
-//                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(RuneType::valueOf, RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(a -> a.runeMap)).apply(inst, RuneAttachment::new));
-
+    public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst -> inst
+            .group(Codec.STRING.xmap(str -> Objects.requireNonNull(CapacityTier.valueOf(str)), CapacityTier::name).fieldOf("capacityTier")
+            .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(RunicCodecs.RUNE_TYPE_CODEC, Codec.INT).fieldOf("runeMap").forGetter(obj -> obj.runeMap))
+        .apply(inst, RuneAttachment::new));
     private CapacityTier capacityTier;
-    private final Map<RuneType, Integer> runeMap = new Object2IntOpenHashMap<>();
+    private Map<RuneType, Integer> runeMap = new Object2IntOpenHashMap<>();
     public RuneAttachment() {
         this.capacityTier = CapacityTier.TIER_0;
         for (RuneType type : RuneType.values()) {
-            runeMap.put(type, 0);
+            runeMap.putIfAbsent(type, 0);
         }
     }
 
     public RuneAttachment(CapacityTier capacityTier, Map<RuneType, Integer> runeMap) {
-        this();
         this.capacityTier = capacityTier;
+        this.runeMap = runeMap;
     }
 
     public CapacityTier getCapacityTier() {

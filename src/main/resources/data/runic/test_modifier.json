@@ -1,12 +1,15 @@
 {
+  "comment:type": "runic:projectile_modifier",
   "spell": "runic:break",
   "maxLevel": 4,
-  "effects_of": "runic:projectile_modifier",
   "requirements": [
     "runic:self_modifier",
     "runic:blank_modifier"
   ],
-  "requiredLevels": 2,
+  "requiredLevels": 1,
+  "runeCosts": {
+    "WATER": 1
+  },
   "x": 5,
-  "y": 8
+  "y": 5
 }

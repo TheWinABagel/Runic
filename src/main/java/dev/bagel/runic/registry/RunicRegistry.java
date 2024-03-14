@@ -18,10 +18,6 @@ import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
-import dev.bagel.runic.spell.modifiers.modifiers.break_spell.AOEMod;
-import dev.bagel.runic.spell.modifiers.modifiers.generic.ProjectileSpellModifier;
-import dev.bagel.runic.spell.modifiers.modifiers.generic.SelfSpellModifier;
-import dev.bagel.runic.spell.modifiers.modifiers.generic.TouchCastModifier;
 import dev.bagel.runic.spell.spells.BasicBreakSpell;
 import dev.bagel.runic.spell.spells.BasicDamageSpell;
 import dev.bagel.runic.spell.spells.BasicEffectSpell;
@@ -60,7 +56,6 @@ public class RunicRegistry {
         CreativeTab.poke();
         Menus.poke();
         Spells.poke();
-        SpellModifiers.poke();
         Effects.poke();
         Entities.poke();
         Attachments.poke();
@@ -131,16 +126,6 @@ public class RunicRegistry {
         public static final DeferredHolder<Spell, BasicBreakSpell> BREAK = R.spell("break", () -> new BasicBreakSpell(5));
         public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(5));
         public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(5));
-
-        private static void poke() {
-        }
-    }
-    public static class SpellModifiers {
-        public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> BLANK_MODIFIER = R.spellModifier("blank_modifier", ProjectileSpellModifier::new);
-        public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> PROJECTILE_MODIFIER = R.spellModifier("projectile_modifier", ProjectileSpellModifier::new);
-        public static final DeferredHolder<SpellModifier, SelfSpellModifier> SELF_MODIFIER = R.spellModifier("self_modifier", SelfSpellModifier::new);
-        public static final DeferredHolder<SpellModifier, TouchCastModifier> TOUCH_MODIFIER = R.spellModifier("touch_modifier", TouchCastModifier::new);
-        public static final DeferredHolder<SpellModifier, AOEMod> AOE_MODIFIER = R.spellModifier("aoe_modifier", AOEMod::new);
 
         private static void poke() {
         }

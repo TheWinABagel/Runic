@@ -6,7 +6,7 @@ import dev.bagel.runic.datagen.ItemModelDatagen;
 import dev.bagel.runic.net.RuneMenuOpenMessage;
 import dev.bagel.runic.net.SpellbookMenuOpenMessage;
 import dev.bagel.runic.registry.RunicRegistry;
-import dev.bagel.runic.spell.spell_modifier.SpellModifierRegistry;
+import dev.bagel.runic.spell.modifiers.SpellModifierRegistry;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.data.DataGenerator;

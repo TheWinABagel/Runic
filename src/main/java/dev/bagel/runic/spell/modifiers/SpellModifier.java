@@ -1,147 +1,43 @@
 package dev.bagel.runic.spell.modifiers;
 
-import dev.bagel.runic.registry.RunicRegistry;
-import dev.bagel.runic.registry.rune_registry.RuneType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bagel.runic.misc.RunicCodecs;
+import dev.bagel.runic.registry.rune_registry.RuneCost;
 import dev.bagel.runic.spell.Spell;
-import dev.bagel.runic.spell.casting.CastType;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.ExtraCodecs;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-public class SpellModifier {
-    protected final boolean isGeneric;
-    @Nullable
-    protected final Spell spell;
-    protected List<Tuple<RuneType, Integer>> runeCosts;
-    protected CastType castType;
-    protected float xpModifier = 1f;
-    protected int maxLevel;
-    protected List<ResourceLocation> requirements;
-    protected int requiredLevels;
+public abstract class SpellModifier implements CodecProvider<SpellModifier> {
 
-    public SpellModifier(ModifierBuilder builder) {
-        this(builder.spell);
-        this.runeCosts = builder.bonuscost;
-        this.castType = builder.castType;
-        this.xpModifier = builder.xpModifier;
-        this.maxLevel = builder.maxLevel;
-        this.requirements = builder.requirements;
-        this.requiredLevels = builder.requiredLevels;
+    protected ModifierData data;
+    protected final SpellModifierType type;
+    public SpellModifier(SpellModifierType type) {
+        this.type = type;
     }
 
-    public SpellModifier(@Nullable Spell targetedSpell) {
-        this.spell = targetedSpell;
-        this.isGeneric = targetedSpell == null;
+    public final ResourceLocation getId() {
+        return SpellModifierRegistry.INSTANCE.getKey(this);
     }
 
-
-
-    public void setCastType(CastType type) {
-        this.castType = type;
+    public ModifierData getModifierData() {
+        return data;
     }
 
-    public CastType getCastType() {
-        return castType;
-    }
-
-    public void addRuneCost(RuneType type, int cost) {
-        runeCosts.add(new Tuple<>(type, cost));
-    }
-
-    public List<Tuple<RuneType, Integer>> getRuneCosts() {
-        return runeCosts;
-    }
-
-    @Nullable
-    public Spell getSpell() {
-        return spell;
-    }
-
-    public boolean isGeneric() {
-        return isGeneric;
-    }
-
-    public float getXpModifier() {
-        return xpModifier;
-    }
-
-    public void setXpModifier(float xpModifier) {
-        this.xpModifier *= xpModifier;
-    }
-
-    @Override
-    public String toString() {
-        ResourceLocation id = RunicRegistry.CustomRegistries.SPELL_MODIFIER_REGISTRY.getKey(this);
-        if (id == null) return "runic:unknown";
-        return id.toString();
-    }
-
-    @Nullable
-    public static SpellModifier getModifierFromStringId(String id) {
-        return RunicRegistry.CustomRegistries.SPELL_MODIFIER_REGISTRY.get(new ResourceLocation(id));
-    }
-
-    @Nullable
-    public static SpellModifier getModifierFromId(ResourceLocation id) {
-        return RunicRegistry.CustomRegistries.SPELL_MODIFIER_REGISTRY.get(id);
-    }
-
-    public static ResourceLocation getIdFromModifier(SpellModifier modifier) {
-        return RunicRegistry.CustomRegistries.SPELL_MODIFIER_REGISTRY.getKey(modifier);
-    }
-
-    public static ModifierBuilder getBuilder(@Nullable Spell spell) {
-        return new ModifierBuilder(spell);
-    }
-    public static class ModifierBuilder {
-        protected final boolean isGeneric;
-        @Nullable
-        protected final Spell spell;
-        protected List<Tuple<RuneType, Integer>> bonuscost;
-        protected CastType castType;
-        protected float xpModifier = 1f;
-        protected int maxLevel;
-        protected List<ResourceLocation> requirements;
-        protected int requiredLevels;
-        private ModifierBuilder(Spell spell) {
-            this.spell = spell;
-            this.isGeneric = spell == null;
-        }
-
-        public ModifierBuilder setBonuscost(List<Tuple<RuneType, Integer>> bonuscost) {
-            this.bonuscost = bonuscost;
-            return this;
-        }
-
-        public ModifierBuilder setCastType(CastType castType) {
-            this.castType = castType;
-            return this;
-        }
-
-        public ModifierBuilder setXpModifier(float xpModifier) {
-            this.xpModifier = xpModifier;
-            return this;
-        }
-
-        public ModifierBuilder setMaxLevel(int maxLevel) {
-            this.maxLevel = maxLevel;
-            return this;
-        }
-
-        public ModifierBuilder setRequirements(List<ResourceLocation> requirements) {
-            this.requirements = requirements;
-            return this;
-        }
-
-        public ModifierBuilder setRequiredLevels(int requiredLevels) {
-            this.requiredLevels = requiredLevels;
-            return this;
-        }
-
-        public SpellModifier build() {
-            return new SpellModifier(this);
-        }
+    protected static final Codec<ModifierData> BASE_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            RunicCodecs.SPELL_CODEC.fieldOf("spell").forGetter(a -> a.spell),
+            Codec.INT.fieldOf("maxLevel").forGetter(a -> a.maxLevel),
+            ExtraCodecs.strictOptionalField(PlaceboCodecs.setOf(ResourceLocation.CODEC), "requirements", Collections.emptySet()).forGetter(a -> a.requirements),
+            Codec.INT.fieldOf("requiredLevels").forGetter(a -> a.requiredLevels),
+            ExtraCodecs.strictOptionalField(RunicCodecs.RUNE_COST_CODEC.listOf(), "runeCosts", Collections.emptyList()).forGetter(e -> e.runeCosts),
+            Codec.INT.fieldOf("x").forGetter(a -> a.x),
+            Codec.INT.fieldOf("y").forGetter(a -> a.y)).apply(inst, ModifierData::new));
+    public record ModifierData(Spell spell, int maxLevel, Set<ResourceLocation> requirements, int requiredLevels, List<RuneCost> runeCosts, int x, int y) {
     }
 }

@@ -1,6 +1,6 @@
 package dev.bagel.runic.registry.rune_registry;
-
 public record RuneCost(RuneType type, int cost) {
+
 
     @Override
     public boolean equals(Object obj) {
