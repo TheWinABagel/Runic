@@ -24,8 +24,8 @@ public class ExperienceAttachment {
     }
 
     public ExperienceAttachment(Map<Spell, Integer> levels, Map<Spell, Double> experience) {
-        this.experience = experience;
-        this.levels = levels;
+        this.experience = new HashMap<>(experience);
+        this.levels = new HashMap<>(levels);
     }
 
     private void levelUp(Spell spell) {

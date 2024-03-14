@@ -4,30 +4,32 @@ import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 
 public class BasicBreakSpell extends Spell {
     public BasicBreakSpell(int xp) {
         super(xp);
-//        setCostForRune(RuneType.EARTH, 1);
     }
 
     @Override
-    public SpellModifier defaultModifier() {
-        return RunicRegistry.SpellModifiers.PROJECTILE_MODIFIER.get();
+    public Object2IntMap<SpellModifier> defaultModifier() {
+        Object2IntMap<SpellModifier> map = new Object2IntOpenHashMap<>();
+        map.put(RunicRegistry.SpellModifiers.TOUCH_MODIFIER.get(), 1);
+        return map;
     }
 
     @Override
-    public InteractionResult onHitBlock(Level level, Player caster, BlockHitResult hitResult, ItemStack usedStack, Spell spell) {
+    public InteractionResult onHitBlock(Level level, Player player, ItemStack usedStack, Spell spell, UseOnContext context) {
         if (level.isClientSide()) return InteractionResult.PASS;
-        if (caster instanceof ServerPlayer sp) {
-            PlaceboUtil.tryHarvestBlock(sp, hitResult.getBlockPos());
-        }
+
+        PlaceboUtil.tryHarvestBlock((ServerPlayer) player, context.getClickedPos());
 
         return InteractionResult.SUCCESS;
     }

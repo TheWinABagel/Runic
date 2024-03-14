@@ -1,0 +1,12 @@
+{
+  "spell": "runic:break",
+  "maxLevel": 4,
+  "effects_of": "runic:projectile_modifier",
+  "requirements": [
+    "runic:self_modifier",
+    "runic:blank_modifier"
+  ],
+  "requiredLevels": 2,
+  "x": 5,
+  "y": 8
+}

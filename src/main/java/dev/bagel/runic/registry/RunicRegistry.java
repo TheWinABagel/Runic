@@ -4,6 +4,7 @@ import dev.bagel.runic.Runic;
 import dev.bagel.runic.attachments.entity.ExperienceAttachment;
 import dev.bagel.runic.attachments.entity.RuneAttachment;
 import dev.bagel.runic.attachments.entity.SpellAttachment;
+import dev.bagel.runic.attachments.entity.SpellModifierAttachment;
 import dev.bagel.runic.registry.block.RuneAltarBlock;
 import dev.bagel.runic.registry.block.entity.RuneAltarBlockEntity;
 import dev.bagel.runic.registry.effect.RunicEffect;
@@ -13,13 +14,14 @@ import dev.bagel.runic.registry.item.CastingItem;
 import dev.bagel.runic.registry.item.RuneItem;
 import dev.bagel.runic.registry.menu.RuneMenu;
 import dev.bagel.runic.registry.menu.SpellbookMenu;
-import dev.bagel.runic.registry.registry.ExtendedDefHelper;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
-import dev.bagel.runic.spell.modifiers.modifiers.ProjectileSpellModifier;
-import dev.bagel.runic.spell.modifiers.modifiers.SelfSpellModifier;
+import dev.bagel.runic.spell.modifiers.modifiers.break_spell.AOEMod;
+import dev.bagel.runic.spell.modifiers.modifiers.generic.ProjectileSpellModifier;
+import dev.bagel.runic.spell.modifiers.modifiers.generic.SelfSpellModifier;
+import dev.bagel.runic.spell.modifiers.modifiers.generic.TouchCastModifier;
 import dev.bagel.runic.spell.spells.BasicBreakSpell;
 import dev.bagel.runic.spell.spells.BasicDamageSpell;
 import dev.bagel.runic.spell.spells.BasicEffectSpell;
@@ -126,7 +128,7 @@ public class RunicRegistry {
 
     public static class Spells {
         public static final DeferredHolder<Spell, EmptySpell> EMPTY = R.spell("blank_spell", EmptySpell::new);
-        public static final DeferredHolder<Spell, BasicBreakSpell> TOUCH_BREAK = R.spell("basic_break", () -> new BasicBreakSpell(5));
+        public static final DeferredHolder<Spell, BasicBreakSpell> BREAK = R.spell("break", () -> new BasicBreakSpell(5));
         public static final DeferredHolder<Spell, BasicEffectSpell> EFFECT_SPELL = R.spell("basic_effect", () -> new BasicEffectSpell(5));
         public static final DeferredHolder<Spell, BasicDamageSpell> DAMAGE_TOUCH_SPELL = R.spell("basic_damage", () -> new BasicDamageSpell(5));
 
@@ -137,6 +139,8 @@ public class RunicRegistry {
         public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> BLANK_MODIFIER = R.spellModifier("blank_modifier", ProjectileSpellModifier::new);
         public static final DeferredHolder<SpellModifier, ProjectileSpellModifier> PROJECTILE_MODIFIER = R.spellModifier("projectile_modifier", ProjectileSpellModifier::new);
         public static final DeferredHolder<SpellModifier, SelfSpellModifier> SELF_MODIFIER = R.spellModifier("self_modifier", SelfSpellModifier::new);
+        public static final DeferredHolder<SpellModifier, TouchCastModifier> TOUCH_MODIFIER = R.spellModifier("touch_modifier", TouchCastModifier::new);
+        public static final DeferredHolder<SpellModifier, AOEMod> AOE_MODIFIER = R.spellModifier("aoe_modifier", AOEMod::new);
 
         private static void poke() {
         }
@@ -158,7 +162,9 @@ public class RunicRegistry {
                 () -> AttachmentType.builder(RuneAttachment::new).serialize(RuneAttachment.CODEC).copyOnDeath().build());
 
         public static DeferredHolder<AttachmentType<?>, AttachmentType<SpellAttachment>> SPELL = R.attachment("spell",
-                () -> AttachmentType.builder(SpellAttachment::new).serialize(SpellAttachment.CODEC).copyOnDeath().build());
+                () -> AttachmentType.builder(() -> new SpellAttachment()).serialize(SpellAttachment.CODEC).copyOnDeath().build());
+        public static DeferredHolder<AttachmentType<?>, AttachmentType<SpellModifierAttachment>> SPELL_MODIFIERS = R.attachment("spell_modifiers",
+                () -> AttachmentType.builder(SpellModifierAttachment::new).serialize(SpellModifierAttachment.CODEC).copyOnDeath().build());
 
         private static void poke() {
         }
@@ -180,21 +186,33 @@ public class RunicRegistry {
         };
         public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Spell>> SPELL_SERIALIZER_HOLDER = R.custom("spell_serializer", NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, () -> SPELL_SERIALIZER);
 
-        private static final EntityDataSerializer<List<SpellModifier>> SPELL_MODIFIERS_SERIALIZER = new EntityDataSerializer<>() {
+        private static final EntityDataSerializer<List<SpellModifier>> SPELL_MODIFIERS_SERIALIZER = new EntityDataSerializer<List<SpellModifier>>() {
             @Override
             public void write(FriendlyByteBuf pBuffer, List<SpellModifier> pValue) {
+//                pBuffer.writeInt(pValue.size());
+//                for (SpellModifier modifier : pValue) {
+//                    pBuffer.writeResourceLocation(SpellModifier.getIdFromModifier(modifier));
+//                }
+
                 pBuffer.writeCollection(pValue, this::write);
             }
 
             @Override
             public List<SpellModifier> read(FriendlyByteBuf pBuffer) {
+//                int size = pBuffer.readInt();
+//                List<SpellModifier> modifiers = new ArrayList<>();
+//                for (int i = 0; i < size; i++) {
+//                    modifiers.add(SpellModifier.getModifierFromId(pBuffer.readResourceLocation()));
+//                }
                 return pBuffer.readList(this::readModifier);
+//                return modifiers;
             }
 
             @Override
             public List<SpellModifier> copy(List<SpellModifier> pValue) {
-                return new ArrayList<>(pValue);
+                return new ArrayList<>(List.copyOf(pValue));
             }
+
 
             private void write(FriendlyByteBuf buf, SpellModifier modifier) {
                 ResourceLocation id = CustomRegistries.SPELL_MODIFIER_REGISTRY.getKey(modifier);
@@ -207,7 +225,7 @@ public class RunicRegistry {
                 return CustomRegistries.SPELL_MODIFIER_REGISTRY.get(id);
             }
         };
-        public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<List<SpellModifier>>> SPELL_MODIFIER_SERIALIZER_HOLDER = R.custom("spell_serializer", NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, () -> SPELL_MODIFIERS_SERIALIZER);
+        public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<List<SpellModifier>>> SPELL_MODIFIER_SERIALIZER_HOLDER = R.custom("spell_modifier_serializer", NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, () -> SPELL_MODIFIERS_SERIALIZER);
         private static void poke() {
         }
     }

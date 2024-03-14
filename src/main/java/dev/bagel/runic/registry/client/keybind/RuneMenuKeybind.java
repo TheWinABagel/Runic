@@ -1,14 +1,12 @@
-package dev.bagel.runic.registry.keybind;
+package dev.bagel.runic.registry.client.keybind;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.bagel.runic.Runic;
 import dev.bagel.runic.net.RuneMenuOpenMessage;
-import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;

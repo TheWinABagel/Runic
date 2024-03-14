@@ -5,21 +5,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bagel.runic.registry.item.RuneItem;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
-import dev.bagel.runic.spell.Spell;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
-import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Objects;
 
 public class RuneAttachment {
     public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst ->
-            inst.group(Codec.STRING.xmap(CapacityTier::valueOf, CapacityTier::name).fieldOf("capacityTier")
-                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(RuneType::valueOf, RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(a -> a.runeMap)).apply(inst, RuneAttachment::new));
+            inst.group(Codec.STRING.xmap(str -> Objects.requireNonNull(CapacityTier.valueOf(str)), CapacityTier::name).fieldOf("capacityTier")
+                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(str -> Objects.requireNonNull(RuneType.valueOf(str)), RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(obj -> obj.runeMap)).apply(inst, RuneAttachment::new));
+//    public static final Codec<RuneAttachment> CODEC = RecordCodecBuilder.create(inst ->
+//            inst.group(Codec.STRING.xmap(CapacityTier::valueOf, CapacityTier::name).fieldOf("capacityTier")
+//                    .forGetter(RuneAttachment::getCapacityTier), Codec.unboundedMap(Codec.STRING.xmap(RuneType::valueOf, RuneType::name), Codec.INT).fieldOf("runeMap").forGetter(a -> a.runeMap)).apply(inst, RuneAttachment::new));
 
     private CapacityTier capacityTier;
     private final Map<RuneType, Integer> runeMap = new Object2IntOpenHashMap<>();
@@ -71,43 +70,20 @@ public class RuneAttachment {
         return addRunesInternal(type, -amount);
     }
 
-    public boolean canAfford(Spell spell) {
-        AtomicBoolean canAfford = new AtomicBoolean(true);
-        spell.getRuneCosts().forEach(cost -> {
-            if (getRunes(cost.type()) - cost.cost() < 0) {
-                canAfford.set(false);
-            }
-        });
-        return canAfford.get();
-    }
+//    public boolean canAfford(Spell spell) {
+//        AtomicBoolean canAfford = new AtomicBoolean(true);
+//        spell.getRuneCosts().forEach(cost -> {
+//            if (getRunes(cost.type()) - cost.cost() < 0) {
+//                canAfford.set(false);
+//            }
+//        });
+//        return canAfford.get();
+//    }
 
     private int addRunesInternal(RuneType type, int amount) {
         int totalAmount = runeMap.get(type) + amount;
         totalAmount = Mth.clamp(totalAmount, 0, capacityTier.maxRunes);
         return runeMap.put(type, totalAmount);
 
-    }
-
-    public static class Serializer implements IAttachmentSerializer<CompoundTag, RuneAttachment> {
-        public static Serializer INSTANCE = new Serializer();
-        private Serializer() {
-        }
-
-        @Override
-        public RuneAttachment read(IAttachmentHolder holder, CompoundTag tag) {
-            RuneAttachment result = new RuneAttachment(CapacityTier.values()[tag.getInt("tier")]);
-            for (RuneType type : RuneType.values()) {
-               result.runeMap.put(type, tag.getInt("rune_" + type.toString()));
-            }
-            return result;
-        }
-
-        @Override
-        public CompoundTag write(RuneAttachment attachment) {
-            CompoundTag tag = new CompoundTag();
-            attachment.runeMap.forEach((type, value) -> tag.putInt("rune_" + type.toString(), value));
-            tag.putInt("tier", attachment.capacityTier.ordinal());
-            return tag;
-        }
     }
 }

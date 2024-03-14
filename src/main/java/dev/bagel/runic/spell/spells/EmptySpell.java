@@ -3,6 +3,8 @@ package dev.bagel.runic.spell.spells;
 import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public class EmptySpell extends Spell {
     public EmptySpell() {
@@ -10,7 +12,9 @@ public class EmptySpell extends Spell {
     }
 
     @Override
-    public SpellModifier defaultModifier() {
-        return RunicRegistry.SpellModifiers.PROJECTILE_MODIFIER.get();
+    public Object2IntMap<SpellModifier> defaultModifier() {
+        Object2IntMap<SpellModifier> map = new Object2IntOpenHashMap<>();
+        map.put(RunicRegistry.SpellModifiers.PROJECTILE_MODIFIER.get(), 4);
+        return map;
     }
 }

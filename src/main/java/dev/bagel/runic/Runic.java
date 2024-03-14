@@ -6,6 +6,7 @@ import dev.bagel.runic.datagen.ItemModelDatagen;
 import dev.bagel.runic.net.RuneMenuOpenMessage;
 import dev.bagel.runic.net.SpellbookMenuOpenMessage;
 import dev.bagel.runic.registry.RunicRegistry;
+import dev.bagel.runic.spell.spell_modifier.SpellModifierRegistry;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.data.DataGenerator;
@@ -18,7 +19,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.registries.*;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +33,7 @@ public class Runic {
         bus.register(this);
         BUS = bus;
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        NeoForge.EVENT_BUS.register(new RunicEvents());
         RunicRegistry.init();
     }
 
@@ -40,6 +42,7 @@ public class Runic {
         PayloadHelper.registerPayload(new RuneMenuOpenMessage.Provider());
         PayloadHelper.registerPayload(new SpellbookMenuOpenMessage.Provider());
         TabFillingRegistry.register(RunicRegistry.CreativeTab.RUNIC_TAB_KEY, RunicRegistry.Items.AIR_RUNE);
+        SpellModifierRegistry.INSTANCE.registerToBus();
     }
 
     @SubscribeEvent

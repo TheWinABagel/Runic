@@ -1,7 +1,6 @@
-package dev.bagel.runic.registry.registry;
+package dev.bagel.runic.registry;
 
 import dev.bagel.runic.Runic;
-import dev.bagel.runic.registry.RunicRegistry;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
 import net.minecraft.core.Holder;

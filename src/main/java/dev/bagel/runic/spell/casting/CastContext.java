@@ -1,6 +1,7 @@
 package dev.bagel.runic.spell.casting;
 
 import dev.bagel.runic.registry.entity.SpellProjectileEntity;
+import dev.bagel.runic.registry.rune_registry.RuneType;
 import dev.bagel.runic.spell.Spell;
 import dev.bagel.runic.spell.modifiers.SpellModifier;
 import net.minecraft.world.entity.Entity;
@@ -9,7 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 //certified no setters in record moment
 public class CastContext {
@@ -22,10 +24,11 @@ public class CastContext {
 
     @Nullable
     private SpellProjectileEntity spellProjectile;
-    private ArrayList<SpellModifier> modifiers;
+    private List<SpellModifier> modifiers;
     private CastType type;
+    private float xpModifier = 1f;
     public CastContext(Level level, Player caster, Spell spell, ItemStack usedStack, @Nullable Entity hitEntity,
-                       @Nullable SpellProjectileEntity spellProjectile, ArrayList<SpellModifier> modifiers, CastType type) {
+                       @Nullable SpellProjectileEntity spellProjectile, List<SpellModifier> modifiers, Map<RuneType, Integer> costs, CastType type) {
         this.level = level;
         this.caster = caster;
         this.spell = spell;
@@ -33,6 +36,7 @@ public class CastContext {
         this.hitEntity = hitEntity;
         this.spellProjectile = spellProjectile;
         this.modifiers = modifiers;
+        this.type = type;
     }
 
     public Level getLevel() {
@@ -83,11 +87,11 @@ public class CastContext {
         this.spellProjectile = spellProjectile;
     }
 
-    public ArrayList<SpellModifier> getModifiers() {
+    public List<SpellModifier> getModifiers() {
         return modifiers;
     }
 
-    public void setModifiers(ArrayList<SpellModifier> modifiers) {
+    public void setModifiers(List<SpellModifier> modifiers) {
         this.modifiers = modifiers;
     }
 
@@ -97,5 +101,13 @@ public class CastContext {
 
     public void setCastType(CastType type) {
         this.type = type;
+    }
+
+    public float getXpModifier() {
+        return xpModifier;
+    }
+
+    public void setXpModifier(float xpModifier) {
+        this.xpModifier = xpModifier;
     }
 }
