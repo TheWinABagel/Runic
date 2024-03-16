@@ -12,6 +12,6 @@ public class ProjectileEntityRenderer extends EntityRenderer<SpellProjectileEnti
 
     @Override
     public ResourceLocation getTextureLocation(SpellProjectileEntity pEntity) {
-        return new ResourceLocation("textures/spellProjectile/projectiles/spectral_arrow.png");
+        return new ResourceLocation("textures/entity/projectiles/spectral_arrow.png");
     }
 }

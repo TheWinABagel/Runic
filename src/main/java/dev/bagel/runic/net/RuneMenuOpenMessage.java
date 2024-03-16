@@ -1,7 +1,7 @@
 package dev.bagel.runic.net;
 
 import dev.bagel.runic.Runic;
-import dev.bagel.runic.registry.menu.RuneMenu;
+import dev.bagel.runic.registry.menu.SpellUpgradeMenu;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
@@ -42,7 +42,7 @@ public class RuneMenuOpenMessage implements CustomPacketPayload {
         @Override
         public void handle(RuneMenuOpenMessage msg, PlayPayloadContext ctx) {
             ctx.player().ifPresent(player -> {
-                player.openMenu(new SimpleMenuProvider(RuneMenu::new, Component.literal("menuuu")));
+                player.openMenu(new SimpleMenuProvider(SpellUpgradeMenu::new, Component.literal("menuuu")));
             });
         }
 

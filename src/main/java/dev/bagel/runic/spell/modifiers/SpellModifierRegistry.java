@@ -15,4 +15,5 @@ public class SpellModifierRegistry extends DynamicRegistry<SpellModifier> {
         this.registerDefaultCodec(Runic.loc("spell_modifier"), BaseDig.CODEC);
 //        this.registerCodec(Runic.loc("base_dig"), BaseDig.CODEC);
     }
+
 }

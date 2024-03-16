@@ -1,0 +1,13 @@
+{
+  "data": {
+    "comment:type": "runic:projectile_modifier",
+    "spell": "runic:break",
+    "maxLevel": 4,
+    "requiredLevels": 1,
+    "requirements": [
+      "runic:base_dig"
+    ],
+    "x": 50,
+    "y": 40
+  }
+}

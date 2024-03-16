@@ -16,7 +16,6 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Runic.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRunicRegistry {
 
-
     @SubscribeEvent
     public static void screens(RegisterMenuScreensEvent event) {
         event.register(RunicRegistry.Menus.RUNE_MENU.get(), RuneScreen::new);

@@ -1,0 +1,13 @@
+{
+  "data": {
+    "comment:type": "dig",
+    "spell": "runic:break",
+    "maxLevel": 1,
+    "requiredLevels": 0,
+    "runeCosts": {
+      "EARTH": 2
+    },
+    "x": 100,
+    "y": 86
+  }
+}

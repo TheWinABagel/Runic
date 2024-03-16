@@ -12,7 +12,7 @@ import dev.bagel.runic.registry.entity.SpellProjectileEntity;
 import dev.bagel.runic.registry.item.CapacityUpgradeItem;
 import dev.bagel.runic.registry.item.CastingItem;
 import dev.bagel.runic.registry.item.RuneItem;
-import dev.bagel.runic.registry.menu.RuneMenu;
+import dev.bagel.runic.registry.menu.SpellUpgradeMenu;
 import dev.bagel.runic.registry.menu.SpellbookMenu;
 import dev.bagel.runic.registry.rune_registry.CapacityTier;
 import dev.bagel.runic.registry.rune_registry.RuneType;
@@ -102,7 +102,7 @@ public class RunicRegistry {
     }
 
     public static class Menus {
-        public static final DeferredHolder<MenuType<?>, MenuType<RuneMenu>> RUNE_MENU = R.menu("rune_menu", () -> new MenuType<>(RuneMenu::new, FeatureFlagSet.of()));
+        public static final DeferredHolder<MenuType<?>, MenuType<SpellUpgradeMenu>> RUNE_MENU = R.menu("rune_menu", () -> new MenuType<>(SpellUpgradeMenu::new, FeatureFlagSet.of()));
         public static final DeferredHolder<MenuType<?>, MenuType<SpellbookMenu>> SPELLBOOK_MENU = R.menu("spellbook_menu", () -> new MenuType<>(SpellbookMenu::new, FeatureFlagSet.of()));
         private static void poke() {
         }

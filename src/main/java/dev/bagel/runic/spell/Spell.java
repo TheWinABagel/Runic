@@ -19,13 +19,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class Spell {
-    public CastType castType;
+    public CastType castType = CastType.TOUCH;
     private final HashSet<RuneCost> runeCosts = new HashSet<>();
     public final int castXp;
 
     public Spell(int baseCastXp) {
         this.castXp = baseCastXp;
-        this.castType = CastType.TOUCH;
     }
 
     public Set<RuneCost> getRuneCosts() {
